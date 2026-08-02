@@ -37,7 +37,11 @@ export function CandlestickChart() {
     if (width < 10 || height < 10) return;
 
     if (chartRef.current) {
-      chartRef.current.destroy();
+      try {
+        (chartRef.current as any).destroy();
+      } catch {
+        // ignore
+      }
       chartRef.current = null;
     }
 
@@ -128,17 +132,14 @@ export function CandlestickChart() {
       if (resizeObserverRef.current) {
         resizeObserverRef.current.disconnect();
       }
-      if (chartRef.current) {
-        try {
-          const chartObj = chartRef.current as any;
-          if (typeof chartObj.destroy === 'function') {
-            chartObj.destroy();
-          }
-        } catch {
-          // ignore
-        }
-        chartRef.current = null;
+if (chartRef.current) {
+      try {
+        (chartRef.current as any).destroy();
+      } catch {
+        // ignore
       }
+      chartRef.current = null;
+    }
       initializedRef.current = false;
     };
   }, [initChart]);
