@@ -3,7 +3,6 @@ export interface CoinConfig {
   name: string;
   binanceSymbol: string;
   icon: string;
-  iconUrl: string;
 }
 
 export interface Kline {

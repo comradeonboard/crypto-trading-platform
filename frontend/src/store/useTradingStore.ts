@@ -2,16 +2,16 @@ import { create } from 'zustand';
 import type { CoinConfig, CoinState, TradingState } from '@/types/trading';
 
 const COINS: CoinConfig[] = [
-  { symbol: 'BTC', name: 'Bitcoin', binanceSymbol: 'BTCUSDT', icon: '₿', iconUrl: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1.png' },
-  { symbol: 'ETH', name: 'Ethereum', binanceSymbol: 'ETHUSDT', icon: 'Ξ', iconUrl: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png' },
-  { symbol: 'SOL', name: 'Solana', binanceSymbol: 'SOLUSDT', icon: '◎', iconUrl: 'https://s2.coinmarketcap.com/static/img/coins/64x64/5426.png' },
-  { symbol: 'LTC', name: 'Litecoin', binanceSymbol: 'LTCUSDT', icon: 'Ł', iconUrl: 'https://s2.coinmarketcap.com/static/img/coins/64x64/2.png' },
-  { symbol: 'DOGE', name: 'Dogecoin', binanceSymbol: 'DOGEUSDT', icon: 'Ð', iconUrl: 'https://s2.coinmarketcap.com/static/img/coins/64x64/74.png' },
-  { symbol: 'XRP', name: 'Ripple', binanceSymbol: 'XRPUSDT', icon: 'Ξ', iconUrl: 'https://s2.coinmarketcap.com/static/img/coins/64x64/52.png' },
-  { symbol: 'ADA', name: 'Cardano', binanceSymbol: 'ADAUSDT', icon: '₳', iconUrl: 'https://s2.coinmarketcap.com/static/img/coins/64x64/2010.png' },
-  { symbol: 'AVAX', name: 'Avalanche', binanceSymbol: 'AVAXUSDT', icon: '◈', iconUrl: 'https://s2.coinmarketcap.com/static/img/coins/64x64/5805.png' },
-  { symbol: 'MATIC', name: 'Polygon', binanceSymbol: 'MATICUSDT', icon: '◈', iconUrl: 'https://s2.coinmarketcap.com/static/img/coins/64x64/3890.png' },
-  { symbol: 'BNB', name: 'BNB', binanceSymbol: 'BNBUSDT', icon: '⬜', iconUrl: 'https://s2.coinmarketcap.com/static/img/coins/64x64/1839.png' },
+  { symbol: 'BTC', name: 'Bitcoin', binanceSymbol: 'BTCUSDT', icon: '₿' },
+  { symbol: 'ETH', name: 'Ethereum', binanceSymbol: 'ETHUSDT', icon: 'Ξ' },
+  { symbol: 'SOL', name: 'Solana', binanceSymbol: 'SOLUSDT', icon: '◎' },
+  { symbol: 'LTC', name: 'Litecoin', binanceSymbol: 'LTCUSDT', icon: 'Ł' },
+  { symbol: 'DOGE', name: 'Dogecoin', binanceSymbol: 'DOGEUSDT', icon: 'Ð' },
+  { symbol: 'XRP', name: 'Ripple', binanceSymbol: 'XRPUSDT', icon: 'Ξ' },
+  { symbol: 'ADA', name: 'Cardano', binanceSymbol: 'ADAUSDT', icon: '₳' },
+  { symbol: 'AVAX', name: 'Avalanche', binanceSymbol: 'AVAXUSDT', icon: '◈' },
+  { symbol: 'MATIC', name: 'Polygon', binanceSymbol: 'MATICUSDT', icon: '◈' },
+  { symbol: 'BNB', name: 'BNB', binanceSymbol: 'BNBUSDT', icon: '⬜' },
 ];
 
 interface TradingStore extends TradingState {

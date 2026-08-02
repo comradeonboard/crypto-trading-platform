@@ -18,7 +18,7 @@ export function CoinSelector() {
               : 'text-gray-400 hover:bg-[#1a1a1a] hover:text-gray-200 border border-transparent'
           }`}
         >
-          <img src={coin.iconUrl} alt={coin.symbol} className="w-5 h-5" />
+          <span className="text-lg">{coin.icon}</span>
           <div className="text-left">
             <div className="font-bold">{coin.symbol}</div>
             <div className="text-xs text-gray-500">{coin.name}</div>

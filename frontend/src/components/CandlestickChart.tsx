@@ -131,7 +131,7 @@ export function CandlestickChart() {
     return () => {
       observer.disconnect();
       if (chartRef.current) {
-        chartRef.current.destroy();
+        (chartRef.current as any).destroy();
         chartRef.current = null;
       }
     };
