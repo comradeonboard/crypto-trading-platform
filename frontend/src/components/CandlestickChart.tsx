@@ -131,7 +131,14 @@ export function CandlestickChart() {
     return () => {
       observer.disconnect();
       if (chartRef.current) {
-        (chartRef.current as any).destroy();
+        try {
+          const chartObj = chartRef.current as any;
+          if (typeof chartObj.destroy === 'function') {
+            chartObj.destroy();
+          }
+        } catch {
+          // ignore cleanup errors
+        }
         chartRef.current = null;
       }
     };
