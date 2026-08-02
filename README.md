@@ -39,6 +39,8 @@ npm run dev
 
 The frontend is automatically deployed to GitHub Pages when changes are pushed to the `master` branch.
 
+Live site: [https://comradeonboard.github.io/crypto-trading-platform](https://comradeonboard.github.io/crypto-trading-platform)
+
 ## License
 
 MIT
