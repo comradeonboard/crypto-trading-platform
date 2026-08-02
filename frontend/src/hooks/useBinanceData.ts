@@ -139,16 +139,24 @@ export function useBinanceData() {
           const currentPrice = data.c;
 
           setCoinData(selectedCoin, {
-            priceData: (prev: PriceData | null) =>
-              prev
-                ? {
-                    ...prev,
-                    price: currentPrice,
-                    bidPrice: data.b,
-                    askPrice: data.a,
-                    timestamp: Date.now(),
-                  }
-                : null,
+            priceData: {
+              ...(useTradingStore.getState().coinData[selectedCoin]?.priceData ?? {
+                symbol: config.symbol,
+                price: '',
+                priceChange: '',
+                priceChangePercent: '',
+                high24h: '',
+                low24h: '',
+                volume: '',
+                bidPrice: '',
+                askPrice: '',
+                timestamp: Date.now(),
+              }),
+              price: currentPrice,
+              bidPrice: data.b,
+              askPrice: data.a,
+              timestamp: Date.now(),
+            },
           });
           setLastUpdate(Date.now());
         } catch {
