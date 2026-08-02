@@ -2,23 +2,48 @@ import { Router } from 'express';
 import axios from 'axios';
 import { calculateSMA, calculateRSI, calculateMACD } from '../utils/indicators';
 
+interface BinanceKline {
+  0: number;
+  1: string;
+  2: string;
+  3: string;
+  4: string;
+  5: string;
+  6: number;
+  7: string;
+  8: string;
+  9: number;
+  10: string;
+  11: number;
+}
+
+interface PredictionResult {
+  timeframe: string;
+  direction: string;
+  probability: number;
+  confidence: number;
+  predictedPrice: number;
+  supportLevel: number;
+  resistanceLevel: number;
+}
+
 const router = Router();
 const BINANCE_BASE = 'https://api.binance.com/api/v3';
 
-function calculateSupportResistance(candles: any[]): { support: number; resistance: number } {
-  const lows = candles.slice(-50).map((c: any) => c.low);
-  const highs = candles.slice(-50).map((c: any) => c.high);
+function calculateSupportResistance(candles: { low: number; high: number }[]): { support: number; resistance: number } {
+  const lows = candles.slice(-50).map((c) => c.low);
+  const highs = candles.slice(-50).map((c) => c.high);
 
-  const sortedLows = [...lows].sort((a: number, b: number) => a - b);
-  const sortedHighs = [...highs].sort((a: number, b: number) => b - a);
+  const sortedLows = [...lows].sort((a, b) => a - b);
+  const sortedHighs = [...highs].sort((a, b) => b - a);
 
-  const support = sortedLows.slice(0, 5).reduce((a: number, b: number) => a + b, 0) / 5;
-  const resistance = sortedHighs.slice(0, 5).reduce((a: number, b: number) => a + b, 0) / 5;
+  const support = sortedLows.slice(0, 5).reduce((a, b) => a + b, 0) / 5;
+  const resistance = sortedHighs.slice(0, 5).reduce((a, b) => a + b, 0) / 5;
 
   return { support, resistance };
 }
 
-function predictPrices(candles: any[]): any[] {
+function predictPrices(candles: { close: number; low: number; high: number }[]): PredictionResult[] {
   if (candles.length < 20) {
     return [
       { timeframe: '1h', direction: 'Sideways', probability: 50, confidence: 0, predictedPrice: 0, supportLevel: 0, resistanceLevel: 0 },
@@ -27,7 +52,7 @@ function predictPrices(candles: any[]): any[] {
     ];
   }
 
-  const closes = candles.map((c: any) => c.close);
+  const closes = candles.map((c) => c.close);
   const lastClose = closes[closes.length - 1];
   const { support, resistance } = calculateSupportResistance(candles);
 
@@ -35,11 +60,11 @@ function predictPrices(candles: any[]): any[] {
   const trendSlope = (recentTrend[recentTrend.length - 1] - recentTrend[0]) / recentTrend.length;
 
   const rsiValues = calculateRSI(closes, 14);
-  const lastRsi = rsiValues.filter((v: number | null) => v !== null).pop() ?? 50;
+  const lastRsi = rsiValues.filter((v): v is number => v !== null).pop() ?? 50;
 
   const macdResult = calculateMACD(closes);
-  const lastMacd = macdResult.macd.filter((v: number | null) => v !== null).pop() ?? 0;
-  const lastMacdSignal = macdResult.signal.filter((v: number | null) => v !== null).pop() ?? 0;
+  const lastMacd = macdResult.macd.filter((v): v is number => v !== null).pop() ?? 0;
+  const lastMacdSignal = macdResult.signal.filter((v): v is number => v !== null).pop() ?? 0;
 
   const timeframes = [
     { label: '1h', multiplier: 0.001, lookback: 5 },
@@ -47,7 +72,7 @@ function predictPrices(candles: any[]): any[] {
     { label: '24h', multiplier: 0.01, lookback: 20 },
   ];
 
-  return timeframes.map((tf: any) => {
+  return timeframes.map((tf) => {
     const recentCloses = closes.slice(-tf.lookback);
     const recentTrendLocal = (recentCloses[recentCloses.length - 1] - recentCloses[0]) / recentCloses.length;
 
@@ -91,12 +116,12 @@ router.get('/:symbol', async (req, res) => {
     const { symbol } = req.params;
     const binanceSymbol = symbol.toUpperCase() + 'USDT';
 
-    const klinesRes = await axios.get(`${BINANCE_BASE}/klines`, {
+    const klinesRes = await axios.get<BinanceKline[]>(`${BINANCE_BASE}/klines`, {
       params: { symbol: binanceSymbol, interval: '1m', limit: 100 },
       timeout: 10000,
     });
 
-    const candles = klinesRes.data.map((k: any) => ({
+    const candles = klinesRes.data.map((k) => ({
       time: k[0] / 1000,
       open: parseFloat(k[1]),
       high: parseFloat(k[2]),

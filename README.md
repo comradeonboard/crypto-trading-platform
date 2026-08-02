@@ -37,7 +37,7 @@ npm run dev
 
 ## Deployment
 
-The frontend is automatically deployed to GitHub Pages when changes are pushed to the `main` branch.
+The frontend is automatically deployed to GitHub Pages when changes are pushed to the `master` branch.
 
 ## License
 
