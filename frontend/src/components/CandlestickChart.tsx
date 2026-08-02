@@ -1,7 +1,34 @@
-import { useEffect, useRef } from 'react';
-import { createChart, type IChartApi, type ISeriesApi, type CandlestickData, type HistogramData, type LineData } from 'lightweight-charts';
+import { useEffect, useRef, useState, useCallback } from 'react';
+import { createChart, type IChartApi, type ISeriesApi, type CandlestickData, type HistogramData, type LineData, type Time } from 'lightweight-charts';
 import { useTradingStore } from '@/store/useTradingStore';
 import type { Candle } from '@/types/trading';
+
+const TIMEFRAMES = ['1m', '5m', '15m', '1h', '4h', '1d'] as const;
+type Timeframe = typeof TIMEFRAMES[number];
+
+function getBinanceInterval(tf: Timeframe): string {
+  const map: Record<Timeframe, string> = {
+    '1m': '1m',
+    '5m': '5m',
+    '15m': '15m',
+    '1h': '1h',
+    '4h': '4h',
+    '1d': '1d',
+  };
+  return map[tf];
+}
+
+function getCandleLimit(tf: Timeframe): number {
+  const map: Record<Timeframe, number> = {
+    '1m': 100,
+    '5m': 100,
+    '15m': 100,
+    '1h': 100,
+    '4h': 100,
+    '1d': 30,
+  };
+  return map[tf];
+}
 
 export function CandlestickChart() {
   const chartContainerRef = useRef<HTMLDivElement>(null);
@@ -9,18 +36,29 @@ export function CandlestickChart() {
   const candlestickSeriesRef = useRef<ISeriesApi<'Candlestick'> | null>(null);
   const volumeSeriesRef = useRef<ISeriesApi<'Histogram'> | null>(null);
   const smaSeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
+  const resizeObserverRef = useRef<ResizeObserver | null>(null);
 
   const { coinData, selectedCoin } = useTradingStore();
   const coinState = coinData[selectedCoin];
   const candles = coinState?.candles ?? [];
   const indicators = coinState?.indicators;
 
+  const [timeframe, setTimeframe] = useState<Timeframe>('1m');
+
+  const handleTimeframeChange = useCallback((tf: Timeframe) => {
+    setTimeframe(tf);
+  }, []);
+
   useEffect(() => {
     if (!chartContainerRef.current) return;
 
-    const chart = createChart(chartContainerRef.current, {
-      width: chartContainerRef.current.clientWidth,
-      height: chartContainerRef.current.clientHeight,
+    const container = chartContainerRef.current;
+    const width = container.clientWidth || container.parentElement?.clientWidth || 800;
+    const height = container.clientHeight || container.parentElement?.clientHeight || 400;
+
+    const chart = createChart(container, {
+      width,
+      height,
       layout: {
         background: { color: '#0a0a0a' },
         textColor: '#00ffff',
@@ -79,9 +117,22 @@ export function CandlestickChart() {
     volumeSeriesRef.current = volumeSeries;
     smaSeriesRef.current = smaSeries;
 
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const { width: w, height: h } = entry.contentRect;
+        if (w > 0 && h > 0) {
+          chart.applyOptions({ width: w, height: h });
+        }
+      }
+    });
+    observer.observe(container);
+    resizeObserverRef.current = observer;
+
     return () => {
-      if (chartRef.current && typeof (chartRef.current as any).destroy === 'function') {
-        (chartRef.current as any).destroy();
+      observer.disconnect();
+      if (chartRef.current) {
+        chartRef.current.destroy();
+        chartRef.current = null;
       }
     };
   }, []);
@@ -90,7 +141,7 @@ export function CandlestickChart() {
     if (!candlestickSeriesRef.current || !volumeSeriesRef.current || !smaSeriesRef.current) return;
 
     const candleData: CandlestickData[] = candles.map((c) => ({
-      time: c.time as any,
+      time: c.time as Time,
       open: c.open,
       high: c.high,
       low: c.low,
@@ -98,7 +149,7 @@ export function CandlestickChart() {
     }));
 
     const volumeData: HistogramData[] = candles.map((c) => ({
-      time: c.time as any,
+      time: c.time as Time,
       value: c.volume,
       color: c.close >= c.open ? '#00ff00' : '#ff0000',
     }));
@@ -111,17 +162,17 @@ export function CandlestickChart() {
         if (i < 19) return null;
         let sum = 0;
         for (let j = i - 19; j <= i; j++) sum += candles[j].close;
-        return { time: c.time as any, value: sum / 20 };
+        return { time: c.time as Time, value: sum / 20 };
       }).filter((d): d is LineData => d !== null);
 
       smaSeriesRef.current.setData(smaData);
     }
 
-    (chartRef.current as any)?.fitContent();
+    chartRef.current?.timeScale().fitContent();
   }, [candles, indicators]);
 
   return (
-    <div className="flex-1 bg-[#0a0a0a] border border-[#1a1a1a] rounded-lg overflow-hidden relative">
+    <div className="flex-1 bg-[#0a0a0a] border border-[#1a1a1a] rounded-lg overflow-hidden relative flex flex-col">
       <div className="absolute top-2 left-3 z-10 flex items-center gap-3">
         <span className="text-cyan-400 font-mono text-sm font-bold">
           {selectedCoin} / USDT
@@ -132,7 +183,22 @@ export function CandlestickChart() {
           </span>
         )}
       </div>
-      <div ref={chartContainerRef} className="w-full h-full" />
+      <div className="absolute top-2 right-3 z-10 flex gap-1">
+        {TIMEFRAMES.map((tf) => (
+          <button
+            key={tf}
+            onClick={() => handleTimeframeChange(tf)}
+            className={`px-2 py-0.5 rounded font-mono text-xs border transition-colors ${
+              timeframe === tf
+                ? 'bg-cyan-900/30 text-cyan-400 border-cyan-400/30'
+                : 'text-gray-500 border-[#1a1a1a] hover:bg-[#1a1a1a] hover:text-gray-300'
+            }`}
+          >
+            {tf}
+          </button>
+        ))}
+      </div>
+      <div ref={chartContainerRef} className="flex-1 w-full" />
     </div>
   );
 }
