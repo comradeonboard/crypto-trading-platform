@@ -71,7 +71,7 @@ export function calculateMACD(
     if (fastEMA[i] === null || slowEMA[i] === null) {
       macdLine.push(null);
     } else {
-      macdLine.push(fastEMA[i] - slowEMA[i]);
+      macdLine.push((fastEMA[i] as number) - (slowEMA[i] as number));
     }
   }
 
@@ -90,7 +90,7 @@ export function calculateMACD(
         signalIdx++;
       }
       const sig = signalIdx < signalLine.length ? signalLine[signalIdx] : null;
-      histogram.push(macdLine[i]! - sig);
+      histogram.push(sig !== null ? macdLine[i]! - sig : null);
       signalIdx++;
     }
   }

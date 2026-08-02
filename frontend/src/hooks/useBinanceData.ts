@@ -139,7 +139,7 @@ export function useBinanceData() {
           const currentPrice = data.c;
 
           setCoinData(selectedCoin, {
-            priceData: (prev) =>
+            priceData: (prev: PriceData | null) =>
               prev
                 ? {
                     ...prev,

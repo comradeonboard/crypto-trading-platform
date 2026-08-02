@@ -80,7 +80,7 @@ export function CandlestickChart() {
     smaSeriesRef.current = smaSeries;
 
     return () => {
-      chart.destroy();
+      (chart as any).destroy();
     };
   }, []);
 
@@ -115,7 +115,7 @@ export function CandlestickChart() {
       smaSeriesRef.current.setData(smaData);
     }
 
-    chartRef.current?.fitContent();
+    (chartRef.current as any)?.fitContent();
   }, [candles, indicators]);
 
   return (
