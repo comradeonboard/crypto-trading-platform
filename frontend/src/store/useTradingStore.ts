@@ -2,16 +2,16 @@ import { create } from 'zustand';
 import type { CoinConfig, CoinState, TradingState } from '@/types/trading';
 
 const COINS: CoinConfig[] = [
-  { symbol: 'BTC', name: 'Bitcoin', binanceSymbol: 'BTCUSDT', icon: '₿' },
-  { symbol: 'ETH', name: 'Ethereum', binanceSymbol: 'ETHUSDT', icon: 'Ξ' },
-  { symbol: 'SOL', name: 'Solana', binanceSymbol: 'SOLUSDT', icon: '◎' },
-  { symbol: 'LTC', name: 'Litecoin', binanceSymbol: 'LTCUSDT', icon: 'Ł' },
-  { symbol: 'DOGE', name: 'Dogecoin', binanceSymbol: 'DOGEUSDT', icon: 'Ð' },
-  { symbol: 'XRP', name: 'Ripple', binanceSymbol: 'XRPUSDT', icon: 'Ξ' },
-  { symbol: 'ADA', name: 'Cardano', binanceSymbol: 'ADAUSDT', icon: '₳' },
-  { symbol: 'AVAX', name: 'Avalanche', binanceSymbol: 'AVAXUSDT', icon: '◈' },
-  { symbol: 'MATIC', name: 'Polygon', binanceSymbol: 'MATICUSDT', icon: '◈' },
-  { symbol: 'BNB', name: 'BNB', binanceSymbol: 'BNBUSDT', icon: '⬜' },
+  { symbol: 'BTC', name: 'Bitcoin', binanceSymbol: 'BTCUSDT', icon: '₿', iconUrl: 'https://raw.githubusercontent.com/cryptocurrency-icons/cryptocurrency-icons/master/32/color/btc.svg' },
+  { symbol: 'ETH', name: 'Ethereum', binanceSymbol: 'ETHUSDT', icon: 'Ξ', iconUrl: 'https://raw.githubusercontent.com/cryptocurrency-icons/cryptocurrency-icons/master/32/color/eth.svg' },
+  { symbol: 'SOL', name: 'Solana', binanceSymbol: 'SOLUSDT', icon: '◎', iconUrl: 'https://raw.githubusercontent.com/cryptocurrency-icons/cryptocurrency-icons/master/32/color/sol.svg' },
+  { symbol: 'LTC', name: 'Litecoin', binanceSymbol: 'LTCUSDT', icon: 'Ł', iconUrl: 'https://raw.githubusercontent.com/cryptocurrency-icons/cryptocurrency-icons/master/32/color/ltc.svg' },
+  { symbol: 'DOGE', name: 'Dogecoin', binanceSymbol: 'DOGEUSDT', icon: 'Ð', iconUrl: 'https://raw.githubusercontent.com/cryptocurrency-icons/cryptocurrency-icons/master/32/color/doge.svg' },
+  { symbol: 'XRP', name: 'Ripple', binanceSymbol: 'XRPUSDT', icon: 'Ξ', iconUrl: 'https://raw.githubusercontent.com/cryptocurrency-icons/cryptocurrency-icons/master/32/color/xrp.svg' },
+  { symbol: 'ADA', name: 'Cardano', binanceSymbol: 'ADAUSDT', icon: '₳', iconUrl: 'https://raw.githubusercontent.com/cryptocurrency-icons/cryptocurrency-icons/master/32/color/ada.svg' },
+  { symbol: 'AVAX', name: 'Avalanche', binanceSymbol: 'AVAXUSDT', icon: '◈', iconUrl: 'https://raw.githubusercontent.com/cryptocurrency-icons/cryptocurrency-icons/master/32/color/avax.svg' },
+  { symbol: 'MATIC', name: 'Polygon', binanceSymbol: 'MATICUSDT', icon: '◈', iconUrl: 'https://raw.githubusercontent.com/cryptocurrency-icons/cryptocurrency-icons/master/32/color/polygon.svg' },
+  { symbol: 'BNB', name: 'BNB', binanceSymbol: 'BNBUSDT', icon: '⬜', iconUrl: 'https://raw.githubusercontent.com/cryptocurrency-icons/cryptocurrency-icons/master/32/color/bnb.svg' },
 ];
 
 interface TradingStore extends TradingState {

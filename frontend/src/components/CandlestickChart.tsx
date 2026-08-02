@@ -80,7 +80,9 @@ export function CandlestickChart() {
     smaSeriesRef.current = smaSeries;
 
     return () => {
-      (chart as any).destroy();
+      if (chartRef.current && typeof (chartRef.current as any).destroy === 'function') {
+        (chartRef.current as any).destroy();
+      }
     };
   }, []);
 
