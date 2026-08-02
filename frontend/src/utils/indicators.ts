@@ -1,3 +1,5 @@
+import type { Candle } from '@/types/trading';
+
 export function calculateSMA(data: number[], period: number): (number | null)[] {
   const result: (number | null)[] = [];
   for (let i = 0; i < data.length; i++) {
@@ -88,7 +90,7 @@ export function calculateMACD(
         signalIdx++;
       }
       const sig = signalIdx < signalLine.length ? signalLine[signalIdx] : null;
-      histogram.push(sig !== null ? macdLine[i] - sig : null);
+      histogram.push(macdLine[i]! - sig);
       signalIdx++;
     }
   }
