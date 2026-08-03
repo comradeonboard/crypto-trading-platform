@@ -67,7 +67,7 @@ export function TradingViewChart() {
 
   return (
     <div className="flex-1 bg-[#0a0a0a] border border-[#1a1a1a] rounded-lg overflow-hidden relative flex flex-col min-h-0">
-      <div className="absolute top-2 left-3 z-10 flex items-center gap-3">
+      <div className="absolute top-2 left-3 z-20 flex items-center gap-3">
         <span className="text-cyan-400 font-mono text-sm font-bold">
           {selectedCoin} / USDT
         </span>
