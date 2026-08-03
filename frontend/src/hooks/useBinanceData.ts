@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
 import { useTradingStore } from '@/store/useTradingStore';
 import type { Candle, Kline, PriceData } from '@/types/trading';
@@ -22,14 +22,6 @@ async function fetchKlines(symbol: string): Promise<Candle[]> {
     timeout: 10000,
   });
   return res.data.map(klineToCandle);
-}
-
-async function fetchPrice(symbol: string): Promise<string> {
-  const res = await axios.get<{ symbol: string; price: string }>(
-    `${BINANCE_BASE}/ticker/price`,
-    { params: { symbol }, timeout: 10000 }
-  );
-  return res.data.price;
 }
 
 async function fetch24hr(symbol: string): Promise<{
@@ -70,13 +62,14 @@ async function fetch24hr(symbol: string): Promise<{
 }
 
 export function useBinanceData() {
-  const { selectedCoin, coinData, setCoinData, setConnected, setLastUpdate } = useTradingStore();
+  const { selectedCoin, coins, setCoinData, setConnected, setLastUpdate } = useTradingStore();
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
+  const fetchCountRef = useRef(0);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
-      const config = useTradingStore.getState().coins.find((c) => c.symbol === selectedCoin);
+      const config = coins.find((c) => c.symbol === selectedCoin);
       if (!config) return;
 
       const [klines, price24hr] = await Promise.all([
@@ -106,22 +99,29 @@ export function useBinanceData() {
 
       setConnected(true);
       setLastUpdate(Date.now());
+      fetchCountRef.current = 0;
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Unknown error';
+      fetchCountRef.current += 1;
+
       setCoinData(selectedCoin, {
         loading: false,
         error: `Failed to fetch data: ${msg}`,
       });
       setConnected(false);
-    }
-  };
 
-  const connectWebSocket = () => {
+      if (fetchCountRef.current >= 5) {
+        clearInterval(intervalRef.current!);
+      }
+    }
+  }, [selectedCoin, coins, setCoinData, setConnected, setLastUpdate]);
+
+  const connectWebSocket = useCallback(() => {
     if (wsRef.current) {
       wsRef.current.close();
     }
 
-    const config = useTradingStore.getState().coins.find((c) => c.symbol === selectedCoin);
+    const config = coins.find((c) => c.symbol === selectedCoin);
     if (!config) return;
 
     const wsUrl = `wss://stream.binance.com:9443/ws/${config.binanceSymbol.toLowerCase()}@ticker`;
@@ -139,24 +139,16 @@ export function useBinanceData() {
           const currentPrice = data.c;
 
           setCoinData(selectedCoin, {
-            priceData: {
-              ...(useTradingStore.getState().coinData[selectedCoin]?.priceData ?? {
-                symbol: config.symbol,
-                price: '',
-                priceChange: '',
-                priceChangePercent: '',
-                high24h: '',
-                low24h: '',
-                volume: '',
-                bidPrice: '',
-                askPrice: '',
-                timestamp: Date.now(),
-              }),
-              price: currentPrice,
-              bidPrice: data.b,
-              askPrice: data.a,
-              timestamp: Date.now(),
-            },
+            priceData: (prev: PriceData | null) =>
+              prev
+                ? {
+                    ...prev,
+                    price: currentPrice,
+                    bidPrice: data.b,
+                    askPrice: data.a,
+                    timestamp: Date.now(),
+                  }
+                : null,
           });
           setLastUpdate(Date.now());
         } catch {
@@ -174,9 +166,10 @@ export function useBinanceData() {
     } catch {
       setConnected(false);
     }
-  };
+  }, [selectedCoin, coins, setCoinData, setConnected, setLastUpdate]);
 
   useEffect(() => {
+    fetchCountRef.current = 0;
     fetchData();
     connectWebSocket();
 
@@ -192,7 +185,7 @@ export function useBinanceData() {
         wsRef.current.close();
       }
     };
-  }, [selectedCoin]);
+  }, [selectedCoin, fetchData, connectWebSocket]);
 
   return { fetchData, connected: useTradingStore((s) => s.connected) };
 }
