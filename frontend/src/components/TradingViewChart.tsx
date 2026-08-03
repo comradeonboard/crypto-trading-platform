@@ -1,6 +1,12 @@
 import { useEffect, useRef } from 'react';
 import { useTradingStore } from '@/store/useTradingStore';
 
+declare global {
+  interface Window {
+    TradingView: any;
+  }
+}
+
 export function TradingViewChart() {
   const containerRef = useRef<HTMLDivElement>(null);
   const scriptRef = useRef<HTMLScriptElement | null>(null);
@@ -29,8 +35,8 @@ export function TradingViewChart() {
       if (!containerRef.current) return;
       containerRef.current.innerHTML = '';
 
-      if (typeof TradingView !== 'undefined') {
-        new TradingView.widget({
+      if (typeof (window as any).TradingView !== 'undefined') {
+        new (window as any).TradingView.widget({
           autosize: true,
           symbol: tvSymbol,
           interval: 'D',
