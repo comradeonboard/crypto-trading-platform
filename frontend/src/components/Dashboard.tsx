@@ -17,7 +17,7 @@ export function Dashboard() {
   useEffect(() => {
     if (candles.length > 0) {
       const store = useTradingStore.getState();
-      store.setCoinData(selectedCoin, { indicators: null, signal: null, predictions: [] });
+      store.setCoinData(selectedCoin, { indicators: undefined, signal: undefined, predictions: [] });
     }
   }, [candles, selectedCoin]);
 
