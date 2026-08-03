@@ -1,7 +1,7 @@
 import { useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
 import { useTradingStore } from '@/store/useTradingStore';
-import type { Candle, Kline, PriceData } from '@/types/trading';
+import type { Candle, Kline } from '@/types/trading';
 
 const BINANCE_BASE = 'https://api.binance.com/api/v3';
 
@@ -138,17 +138,29 @@ export function useBinanceData() {
           const data = JSON.parse(event.data);
           const currentPrice = data.c;
 
+          const prevPriceData = useTradingStore.getState().coinData[selectedCoin]?.priceData;
+
           setCoinData(selectedCoin, {
-            priceData: (prev: PriceData | null) =>
-              prev
-                ? {
-                    ...prev,
-                    price: currentPrice,
-                    bidPrice: data.b,
-                    askPrice: data.a,
-                    timestamp: Date.now(),
-                  }
-                : null,
+            priceData: prevPriceData
+              ? {
+                  ...prevPriceData,
+                  price: currentPrice,
+                  bidPrice: data.b,
+                  askPrice: data.a,
+                  timestamp: Date.now(),
+                }
+              : {
+                  symbol: config.symbol,
+                  price: currentPrice,
+                  priceChange: '',
+                  priceChangePercent: '',
+                  high24h: '',
+                  low24h: '',
+                  volume: '',
+                  bidPrice: data.b,
+                  askPrice: data.a,
+                  timestamp: Date.now(),
+                },
           });
           setLastUpdate(Date.now());
         } catch {
