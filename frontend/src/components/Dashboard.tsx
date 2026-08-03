@@ -1,5 +1,5 @@
 import { CoinSelector } from './CoinSelector';
-import { CandlestickChart } from './CandlestickChart';
+import { TradingViewChart } from './TradingViewChart';
 import { SignalPanel } from './SignalPanel';
 import { PredictionPanel } from './PredictionPanel';
 import { StatsPanel } from './StatsPanel';
@@ -48,7 +48,7 @@ export function Dashboard() {
 
         <main className="flex-1 flex flex-col p-3 gap-3 overflow-hidden">
           <ErrorBoundary>
-            <CandlestickChart />
+            <TradingViewChart />
           </ErrorBoundary>
         </main>
 
